@@ -39,7 +39,7 @@ AddEventHandler("qb-bossmenu:server:withdrawMoney", function(amount)
 
     TriggerClientEvent('qb-bossmenu:client:refreshSociety', -1, job, Accounts[job])
     SaveResourceFile(GetCurrentResourceName(), "./database.json", json.encode(Accounts), -1)
-    TriggerEvent('cash_logs:server:createLog', 'bossmenu', 'Withdraw Money', "Successfully withdrawn $" .. amount .. ' (' .. job .. ')', src)
+    TriggerEvent('qb-log:server:createLog', 'bossmenu', 'Withdraw Money', "Successfully withdrawn $" .. amount .. ' (' .. job .. ')', src)
 end)
 
 RegisterServerEvent("qb-bossmenu:server:depositMoney")
