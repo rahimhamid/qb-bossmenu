@@ -103,8 +103,11 @@ $(document).on('click', '.givejob', function(e) {
 });
 
 $(document).on('click', '.withdraw-down', function(e) {
-    var newAmount = currentWithdrawAmount = currentWithdrawAmount - 100;
-    if (newAmount > 0) {
+    var newAmount = 0
+    if (currentWithdrawAmount - 100 >= 100){
+    newAmount = currentWithdrawAmount = currentWithdrawAmount - 100;
+    }
+    if (newAmount >= 100) {
         currentWithdrawAmount = newAmount;
         $('#withdraw-amount').html(currentWithdrawAmount);
     }
@@ -119,8 +122,11 @@ $(document).on('click', '.withdraw-up', function(e) {
 });
 
 $(document).on('click', '.deposit-down', function(e) {
-    var newAmount = currentDepositAmount = currentDepositAmount - 100;
-    if (newAmount > 0) {
+    var newAmount = 0
+    if (currentDepositAmount - 100 >= 100){
+        newAmount = currentDepositAmount = currentDepositAmount - 100;
+        }
+    if (newAmount >= 100) {
         currentDepositAmount = newAmount;
         $('#deposit-amount').html(currentDepositAmount);
     }
