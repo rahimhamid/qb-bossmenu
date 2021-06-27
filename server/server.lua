@@ -39,7 +39,7 @@ AddEventHandler("qb-bossmenu:server:withdrawMoney", function(amount)
 
     TriggerClientEvent('qb-bossmenu:client:refreshSociety', -1, job, Accounts[job])
     SaveResourceFile(GetCurrentResourceName(), "./database.json", json.encode(Accounts), -1)
-    TriggerEvent('qb-log:server:createLog', 'bossmenu', 'Withdraw Money', "Successfully withdrawn $" .. amount .. ' (' .. job .. ')', src)
+    TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Withdraw Money', "Successfully withdrawn $" .. amount .. ' (' .. job .. ')', src)
 end)
 
 RegisterServerEvent("qb-bossmenu:server:depositMoney")
@@ -61,7 +61,7 @@ AddEventHandler("qb-bossmenu:server:depositMoney", function(amount)
 
     TriggerClientEvent('qb-bossmenu:client:refreshSociety', -1, job, Accounts[job])
     SaveResourceFile(GetCurrentResourceName(), "./database.json", json.encode(Accounts), -1)
-    TriggerEvent('cash_logs:server:createLog', 'bossmenu', 'Deposit Money', "Successfully deposited $" .. amount .. ' (' .. job .. ')', src)
+    TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Deposit Money', "Successfully deposited $" .. amount .. ' (' .. job .. ')', src)
 end)
 
 RegisterServerEvent("qb-bossmenu:server:addAccountMoney")
@@ -140,7 +140,7 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(data)
 
     if xEmployee then
         if xEmployee.Functions.SetJob("unemployed", '0') then
-            TriggerEvent('cash_logs:server:createLog', 'bossmenu', 'Job Fire', "Successfully fired " .. GetPlayerName(xEmployee.PlayerData.source) .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
+            TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Job Fire', "Successfully fired " .. GetPlayerName(xEmployee.PlayerData.source) .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
 
             TriggerClientEvent('QBCore:Notify', src, "Fired successfully!", "success")
             TriggerClientEvent('QBCore:Notify', xEmployee.PlayerData.source , "You got fired.", "success")
@@ -191,7 +191,7 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(data)
 
                 QBCore.Functions.ExecuteSql(false, "UPDATE `players` SET `job` = '"..json.encode(job).."' WHERE `citizenid` = '".. data.source .."'")
                 TriggerClientEvent('QBCore:Notify', src, "Fired successfully!", "success")
-                TriggerEvent('cash_logs:server:createLog', 'bossmenu', 'Fire', "Successfully fired " .. data.source .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
+                TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Fire', "Successfully fired " .. data.source .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
                 
                 Wait(500)
                 local employees = {}
@@ -237,7 +237,7 @@ AddEventHandler('qb-bossmenu:server:giveJob', function(data)
         if xTarget and xTarget.Functions.SetJob(xPlayer.PlayerData.job.name, 0) then
             TriggerClientEvent('QBCore:Notify', src, "You recruit " .. (xTarget.PlayerData.charinfo.firstname .. ' ' .. xTarget.PlayerData.charinfo.lastname) .. " to " .. xPlayer.PlayerData.job.label .. ".", "success")
             TriggerClientEvent('QBCore:Notify', xTarget.PlayerData.source , "You've been recruited to " .. xPlayer.PlayerData.job.label .. ".", "success")
-            TriggerEvent('cash_logs:server:createLog', 'bossmenu', 'Recruit', "Successfully recruited " .. (xTarget.PlayerData.charinfo.firstname .. ' ' .. xTarget.PlayerData.charinfo.lastname) .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
+            TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Recruit', "Successfully recruited " .. (xTarget.PlayerData.charinfo.firstname .. ' ' .. xTarget.PlayerData.charinfo.lastname) .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
         end
     else
         TriggerClientEvent('QBCore:Notify', src, "You are not the boss, how did you reach here bitch?!", "error")
