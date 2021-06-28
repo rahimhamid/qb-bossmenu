@@ -147,7 +147,7 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(data)
 
             Wait(500)
             local employees = {}
-            QBCore.Functions.ExecuteSql(false, "SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
+            exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
                 if players[1] ~= nil then
                     for key, value in pairs(players) do
                         local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
@@ -175,7 +175,7 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(data)
             TriggerClientEvent('QBCore:Notify', src, "Error.", "error")
         end
     else
-        QBCore.Functions.ExecuteSql(false, "SELECT * FROM `players` WHERE `citizenid` = '" .. data.source .. "' LIMIT 1", function(player)
+        exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `citizenid` = '" .. data.source .. "' LIMIT 1", function(player)
             if player[1] ~= nil then
                 xEmployee = player[1]
 
@@ -189,13 +189,13 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(data)
 	            job.grade.name = nil
                 job.grade.level = 0
 
-                QBCore.Functions.ExecuteSql(false, "UPDATE `players` SET `job` = '"..json.encode(job).."' WHERE `citizenid` = '".. data.source .."'")
+                exports.ghmattimysql:execute("UPDATE `players` SET `job` = '"..json.encode(job).."' WHERE `citizenid` = '".. data.source .."'")
                 TriggerClientEvent('QBCore:Notify', src, "Fired successfully!", "success")
                 TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Fire', "Successfully fired " .. data.source .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
                 
                 Wait(500)
                 local employees = {}
-                QBCore.Functions.ExecuteSql(false, "SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
+                exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
                     if players[1] ~= nil then
                         for key, value in pairs(players) do
                             local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
@@ -257,7 +257,7 @@ AddEventHandler('qb-bossmenu:server:updateGrade', function(data)
 
             Wait(500)
             local employees = {}
-            QBCore.Functions.ExecuteSql(false, "SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
+            exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
                 if players[1] ~= nil then
                     for key, value in pairs(players) do
                         local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
@@ -286,18 +286,18 @@ AddEventHandler('qb-bossmenu:server:updateGrade', function(data)
             TriggerClientEvent('QBCore:Notify', src, "Error.", "error")
         end
     else
-        QBCore.Functions.ExecuteSql(false, "SELECT * FROM `players` WHERE `citizenid` = '" .. data.source .. "' LIMIT 1", function(player)
+        exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `citizenid` = '" .. data.source .. "' LIMIT 1", function(player)
             if player[1] ~= nil then
                 xEmployee = player[1]
                 local job = QBCore.Shared.Jobs[xPlayer.PlayerData.job.name]
                 local employeejob = json.decode(xEmployee.job)
                 employeejob.grade = job.grades[data.grade]
-                QBCore.Functions.ExecuteSql(false, "UPDATE `players` SET `job` = '"..json.encode(employeejob).."' WHERE `citizenid` = '".. data.source .."'")
+                exports.ghmattimysql:execute("UPDATE `players` SET `job` = '"..json.encode(employeejob).."' WHERE `citizenid` = '".. data.source .."'")
                 TriggerClientEvent('QBCore:Notify', src, "Promoted successfully!", "success")
                 
                 Wait(500)
                 local employees = {}
-                QBCore.Functions.ExecuteSql(false, "SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
+                exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
                     if players[1] ~= nil then
                         for key, value in pairs(players) do
                             local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
