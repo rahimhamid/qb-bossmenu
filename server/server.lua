@@ -1,6 +1,5 @@
-QBCore = nil
 Accounts = {}
-TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
+
 CreateThread(function()
     Wait(500)
     local result = json.decode(LoadResourceFile(GetCurrentResourceName(), "./database.json"))
