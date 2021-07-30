@@ -98,33 +98,31 @@ AddEventHandler("qb-bossmenu:server:openMenu", function()
         if not Accounts[job.name] then
             Accounts[job.name] = 0
         end
+        local players = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `job` LIKE '%".. job.name .."%'")
+        if players[1] ~= nil then
+            for key, value in pairs(players) do
+                local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
 
-        QBCore.Functions.ExecuteSql(true, "SELECT * FROM `players` WHERE `job` LIKE '%".. job.name .."%'", function(players)
-            if players[1] ~= nil then
-                for key, value in pairs(players) do
-                    local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
-
-                    if isOnline then
-                        table.insert(employees, {
-                            source = isOnline.PlayerData.citizenid, 
-                            grade = isOnline.PlayerData.job.grade,
-                            isboss = isOnline.PlayerData.job.isboss,
-                            name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
-                        })
-                    else
-                        table.insert(employees, {
-                            source = value.citizenid, 
-                            grade =  json.decode(value.job).grade,
-                            isboss = json.decode(value.job).isboss,
-                            name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
-                        })
-                    end
+                if isOnline then
+                    table.insert(employees, {
+                        source = isOnline.PlayerData.citizenid, 
+                        grade = isOnline.PlayerData.job.grade,
+                        isboss = isOnline.PlayerData.job.isboss,
+                        name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
+                    })
+                else
+                    table.insert(employees, {
+                        source = value.citizenid, 
+                        grade =  json.decode(value.job).grade,
+                        isboss = json.decode(value.job).isboss,
+                        name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
+                    })
                 end
             end
+        end
 
-            TriggerClientEvent('qb-bossmenu:client:openMenu', src, employees, QBCore.Shared.Jobs[job.name])
-            TriggerClientEvent('qb-bossmenu:client:refreshSociety', -1, job.name, Accounts[job.name])
-        end)
+        TriggerClientEvent('qb-bossmenu:client:openMenu', src, employees, QBCore.Shared.Jobs[job.name])
+        TriggerClientEvent('qb-bossmenu:client:refreshSociety', -1, job.name, Accounts[job.name])
     else
         TriggerClientEvent('QBCore:Notify', src, "You Don't Have Access", "error")
     end
@@ -146,83 +144,79 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(data)
 
             Wait(500)
             local employees = {}
-            exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
-                if players[1] ~= nil then
-                    for key, value in pairs(players) do
-                        local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
-                    
-                        if isOnline then
-                            table.insert(employees, {
-                                source = isOnline.PlayerData.citizenid, 
-                                grade = isOnline.PlayerData.job.grade,
-                                isboss = isOnline.PlayerData.job.isboss,
-                                name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
-                            })
-                        else
-                            table.insert(employees, {
-                                source = value.citizenid, 
-                                grade =  json.decode(value.job).grade,
-                                isboss = json.decode(value.job).isboss,
-                                name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
-                            })
-                        end
+            local players = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'")
+            if players[1] ~= nil then
+                for key, value in pairs(players) do
+                    local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
+                
+                    if isOnline then
+                        table.insert(employees, {
+                            source = isOnline.PlayerData.citizenid, 
+                            grade = isOnline.PlayerData.job.grade,
+                            isboss = isOnline.PlayerData.job.isboss,
+                            name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
+                        })
+                    else
+                        table.insert(employees, {
+                            source = value.citizenid, 
+                            grade =  json.decode(value.job).grade,
+                            isboss = json.decode(value.job).isboss,
+                            name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
+                        })
                     end
-                    TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
                 end
-            end)
+                TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
+            end
         else
             TriggerClientEvent('QBCore:Notify', src, "Error.", "error")
         end
     else
-        exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `citizenid` = '" .. data.source .. "' LIMIT 1", function(player)
-            if player[1] ~= nil then
-                xEmployee = player[1]
+        local player = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE citizenid=@citizenid LIMIT 1', {['@citizenid'] = data.source})
+        if player[1] ~= nil then
+            xEmployee = player[1]
+            local job = {}
+            job.name = "unemployed"
+            job.label = "Unemployed"
+            job.payment = 10
+            job.onduty = true
+            job.isboss = false
+            job.grade = {}
+            job.grade.name = nil
+            job.grade.level = 0
 
-                local job = {}
-	            job.name = "unemployed"
-	            job.label = "Unemployed"
-	            job.payment = 10
-	            job.onduty = true
-	            job.isboss = false
-	            job.grade = {}
-	            job.grade.name = nil
-                job.grade.level = 0
-
-                exports.ghmattimysql:execute("UPDATE `players` SET `job` = '"..json.encode(job).."' WHERE `citizenid` = '".. data.source .."'")
-                TriggerClientEvent('QBCore:Notify', src, "Fired successfully!", "success")
-                TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Fire', "Successfully fired " .. data.source .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
+            exports.ghmattimysql:execute('UPDATE players SET job=@job WHERE citizenid=@citizenid', {['@job'] = json.encode(job), ['@citizenid'] = data.source})
+            TriggerClientEvent('QBCore:Notify', src, "Fired successfully!", "success")
+            TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Fire', "Successfully fired " .. data.source .. ' (' .. xPlayer.PlayerData.job.name .. ')', src)
+            
+            Wait(500)
+            local employees = {}
+            local query = '%'..xPlayer.PlayerData.job.name..'%'
+            local players = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE job LIKE @query', {['@query'] = query})
+            if players[1] ~= nil then
+                for key, value in pairs(players) do
+                    local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
                 
-                Wait(500)
-                local employees = {}
-                exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
-                    if players[1] ~= nil then
-                        for key, value in pairs(players) do
-                            local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
-                        
-                            if isOnline then
-                                table.insert(employees, {
-                                    source = isOnline.PlayerData.citizenid, 
-                                    grade = isOnline.PlayerData.job.grade,
-                                    isboss = isOnline.PlayerData.job.isboss,
-                                    name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
-                                })
-                            else
-                                table.insert(employees, {
-                                    source = value.citizenid, 
-                                    grade =  json.decode(value.job).grade,
-                                    isboss = json.decode(value.job).isboss,
-                                    name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
-                                })
-                            end
-                        end
-
-                        TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
+                    if isOnline then
+                        table.insert(employees, {
+                            source = isOnline.PlayerData.citizenid, 
+                            grade = isOnline.PlayerData.job.grade,
+                            isboss = isOnline.PlayerData.job.isboss,
+                            name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
+                        })
+                    else
+                        table.insert(employees, {
+                            source = value.citizenid, 
+                            grade =  json.decode(value.job).grade,
+                            isboss = json.decode(value.job).isboss,
+                            name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
+                        })
                     end
-                end)
-            else
-                TriggerClientEvent('QBCore:Notify', src, "Error. Could not find player.", "error")
+                end
+                TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
             end
-        end)
+        else
+            TriggerClientEvent('QBCore:Notify', src, "Error. Could not find player.", "error")
+        end
     end
 end)
 
@@ -256,75 +250,74 @@ AddEventHandler('qb-bossmenu:server:updateGrade', function(data)
 
             Wait(500)
             local employees = {}
-            exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
-                if players[1] ~= nil then
-                    for key, value in pairs(players) do
-                        local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
-                    
-                        if isOnline then
-                            table.insert(employees, {
-                                source = isOnline.PlayerData.citizenid, 
-                                grade = isOnline.PlayerData.job.grade,
-                                isboss = isOnline.PlayerData.job.isboss,
-                                name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
-                            })
-                        else
-                            table.insert(employees, {
-                                source = value.citizenid, 
-                                grade =  json.decode(value.job).grade,
-                                isboss = json.decode(value.job).isboss,
-                                name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
-                            })
-                        end
+            local query = '%'..xPlayer.PlayerData.job.name..'%'
+            local players = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE job LIKE @query', {['@query'] = query})
+            if players[1] ~= nil then
+                for key, value in pairs(players) do
+                    local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
+                
+                    if isOnline then
+                        table.insert(employees, {
+                            source = isOnline.PlayerData.citizenid, 
+                            grade = isOnline.PlayerData.job.grade,
+                            isboss = isOnline.PlayerData.job.isboss,
+                            name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
+                        })
+                    else
+                        table.insert(employees, {
+                            source = value.citizenid, 
+                            grade =  json.decode(value.job).grade,
+                            isboss = json.decode(value.job).isboss,
+                            name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
+                        })
                     end
-
-                    TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
                 end
-            end)
+
+                TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
+            end
         else
             TriggerClientEvent('QBCore:Notify', src, "Error.", "error")
         end
     else
-        exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `citizenid` = '" .. data.source .. "' LIMIT 1", function(player)
-            if player[1] ~= nil then
-                xEmployee = player[1]
-                local job = QBCore.Shared.Jobs[xPlayer.PlayerData.job.name]
-                local employeejob = json.decode(xEmployee.job)
-                employeejob.grade = job.grades[data.grade]
-                exports.ghmattimysql:execute("UPDATE `players` SET `job` = '"..json.encode(employeejob).."' WHERE `citizenid` = '".. data.source .."'")
-                TriggerClientEvent('QBCore:Notify', src, "Promoted successfully!", "success")
+        local player = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE citizenid=@citizenid LIMIT 1', {['@citizenid'] = data.source})
+        if player[1] ~= nil then
+            xEmployee = player[1]
+            local job = QBCore.Shared.Jobs[xPlayer.PlayerData.job.name]
+            local employeejob = json.decode(xEmployee.job)
+            employeejob.grade = job.grades[data.grade]
+            exports.ghmattimysql:execute('UPDATE players SET job=@job WHERE citizenid=@citizenid', {['@job'] = json.encode(employeejob), ['@citizenid'] = data.source})
+            TriggerClientEvent('QBCore:Notify', src, "Promoted successfully!", "success")
+            
+            Wait(500)
+            local employees = {}
+            local query = '%'..xPlayer.PlayerData.job.name..'%'
+            local players = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE job LIKE @query', {['@query'] = query})
+            if players[1] ~= nil then
+                for key, value in pairs(players) do
+                    local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
                 
-                Wait(500)
-                local employees = {}
-                exports.ghmattimysql:execute("SELECT * FROM `players` WHERE `job` LIKE '%".. xPlayer.PlayerData.job.name .."%'", function(players)
-                    if players[1] ~= nil then
-                        for key, value in pairs(players) do
-                            local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
-                        
-                            if isOnline then
-                                table.insert(employees, {
-                                    source = isOnline.PlayerData.citizenid, 
-                                    grade = isOnline.PlayerData.job.grade,
-                                    isboss = isOnline.PlayerData.job.isboss,
-                                    name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
-                                })
-                            else
-                                table.insert(employees, {
-                                    source = value.citizenid, 
-                                    grade =  json.decode(value.job).grade,
-                                    isboss = json.decode(value.job).isboss,
-                                    name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
-                                })
-                            end
-                        end
-
-                        TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
+                    if isOnline then
+                        table.insert(employees, {
+                            source = isOnline.PlayerData.citizenid, 
+                            grade = isOnline.PlayerData.job.grade,
+                            isboss = isOnline.PlayerData.job.isboss,
+                            name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
+                        })
+                    else
+                        table.insert(employees, {
+                            source = value.citizenid, 
+                            grade =  json.decode(value.job).grade,
+                            isboss = json.decode(value.job).isboss,
+                            name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
+                        })
                     end
-                end)
-            else
-                TriggerClientEvent('QBCore:Notify', src, "Error. Could not find player.", "error")
+                end
+
+                TriggerClientEvent('qb-bossmenu:client:refreshPage', src, 'employee', employees)
             end
-        end)
+        else
+            TriggerClientEvent('QBCore:Notify', src, "Error. Could not find player.", "error")
+        end
     end
 end)
 
