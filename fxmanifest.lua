@@ -4,14 +4,13 @@ game 'gta5'
 description 'QB-BossMenu'
 version '1.0.0'
 
-shared_script '@qb-core/import.lua'
-client_script 'client/client.lua'
-server_script 'server/server.lua'
-ui_page 'html/index.html'
-
-files {
-    'html/*',
-    'html/assets/*',
+client_scripts {
+    '@menuv/menuv.lua',
+    'config.lua',
+    'client.lua'
 }
 
-server_export "GetAccount"
+shared_script '@qb-core/import.lua'
+server_script 'server.lua'
+
+server_export 'GetAccount'
