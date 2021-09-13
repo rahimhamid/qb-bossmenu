@@ -1,4 +1,4 @@
-Accounts = {}
+local Accounts = {}
 
 CreateThread(function()
     Wait(500)
