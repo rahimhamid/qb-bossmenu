@@ -1,6 +1,6 @@
 {
-    "police":1000000,
-    "ambulance":0,
+    "police":10000,
+    "ambulance":25000,
     "realestate":0,
     "taxi":0,
     "cardealer":0,
