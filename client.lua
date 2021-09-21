@@ -164,10 +164,10 @@ CreateThread(function()
     while true do
         sleep = 1000
         if PlayerJob.name ~= nil then
-            local pos = GetEntityCoords(PlayerPedId())
             for k, v in pairs(Config.Jobs) do
                 if k == PlayerJob.name and PlayerJob.isboss then
-                    if #(pos - v) < 1.0 then
+                    local pos = GetEntityCoords(PlayerPedId())
+                    if #(pos - v) < 2.0 then
                         sleep = 7
                         DrawText3D(v, "~g~E~w~ - Boss Menu")
                         if IsControlJustReleased(0, 38) then
