@@ -99,7 +99,7 @@ QBCore.Functions.CreateCallback('qb-bossmenu:server:GetEmployees', function(sour
     if not Accounts[jobname] then
         Accounts[jobname] = 0
     end
-    local players = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `job` LIKE '%".. jobname .."%'")
+    local players = exports.oxmysql:executeSync("SELECT * FROM `players` WHERE `job` LIKE '%".. jobname .."%'")
     if players[1] ~= nil then
         for key, value in pairs(players) do
             local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
@@ -138,7 +138,7 @@ AddEventHandler('qb-bossmenu:server:updateGrade', function(target, grade)
             TriggerClientEvent('QBCore:Notify', src, "Grade Does Not Exist", "error")
         end
     else
-        local player = exports.oxmysql:fetchSync('SELECT * FROM players WHERE citizenid = ? LIMIT 1', { target })
+        local player = exports.oxmysql:executeSync('SELECT * FROM players WHERE citizenid = ? LIMIT 1', { target })
         if player[1] ~= nil then
             Employee = player[1]
             local job = QBCore.Shared.Jobs[Player.PlayerData.job.name]
@@ -167,7 +167,7 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(target)
             TriggerClientEvent('QBCore:Notify', src, "Contact Server Developer", "error")
         end
     else
-        local player = exports.oxmysql:fetchSync('SELECT * FROM players WHERE citizenid = ? LIMIT 1', { target })
+        local player = exports.oxmysql:executeSync('SELECT * FROM players WHERE citizenid = ? LIMIT 1', { target })
         if player[1] ~= nil then
             Employee = player[1]
             local job = {}
