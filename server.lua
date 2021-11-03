@@ -73,7 +73,7 @@ AddEventHandler("qb-bossmenu:server:addAccountMoney", function(account, amount)
     if not Accounts[account] then
         Accounts[account] = 0
     end
-    
+
     Accounts[account] = Accounts[account] + amount
     TriggerClientEvent('qb-bossmenu:client:refreshSociety', -1, account, Accounts[account])
     SaveResourceFile(GetCurrentResourceName(), "./accounts.json", json.encode(Accounts), -1)
@@ -95,6 +95,7 @@ end)
 
 -- Get Employees
 QBCore.Functions.CreateCallback('qb-bossmenu:server:GetEmployees', function(source, cb, jobname)
+    local src = source
     local employees = {}
     if not Accounts[jobname] then
         Accounts[jobname] = 0
@@ -105,19 +106,19 @@ QBCore.Functions.CreateCallback('qb-bossmenu:server:GetEmployees', function(sour
             local isOnline = QBCore.Functions.GetPlayerByCitizenId(value.citizenid)
 
             if isOnline then
-                table.insert(employees, {
-                    source = isOnline.PlayerData.citizenid, 
+                employees[#employees+1] = {
+                    src = isOnline.PlayerData.citizenid,
                     grade = isOnline.PlayerData.job.grade,
                     isboss = isOnline.PlayerData.job.isboss,
                     name = isOnline.PlayerData.charinfo.firstname .. ' ' .. isOnline.PlayerData.charinfo.lastname
-                })
+                }
             else
-                table.insert(employees, {
-                    source = value.citizenid, 
+                employees[#employees+1] = {
+                    src = value.citizenid,
                     grade =  json.decode(value.job).grade,
                     isboss = json.decode(value.job).isboss,
                     name = json.decode(value.charinfo).firstname .. ' ' .. json.decode(value.charinfo).lastname
-                })
+                }
             end
         end
     end
