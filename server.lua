@@ -1,4 +1,5 @@
 local Accounts = {}
+local QBCore = exports['qb-core']:GetCoreObject()
 
 CreateThread(function()
     Wait(500)
@@ -203,9 +204,9 @@ AddEventHandler('qb-bossmenu:server:fireEmployee', function(target)
             TriggerClientEvent('QBCore:Notify', src, {text="Boss Menu", caption="This person is not on your payroll."}, "error", 4000)
         end
 
-        
-            
-       
+
+
+
     end
 end)
 
